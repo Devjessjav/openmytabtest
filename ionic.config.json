@@ -1,0 +1,7 @@
+{
+  "name": "open-my-tab",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
