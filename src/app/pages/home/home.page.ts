@@ -124,8 +124,8 @@ export class HomePage {
       nameRoom: ['', [Validators.required]]
     })
   }
-  async ionViewDidLoad() {
-    await this.getRooms()
+  ionViewDidEnter() {
+    this.getRooms()
   }
   // Get Rooms
   async getRooms() {
