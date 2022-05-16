@@ -62,7 +62,7 @@ export class HomePage {
   roomItem: any
   roomNameEdit: string
   // Array Rooms
-  rooms: Array<any> = [];
+  rooms = [];
   // Variables Options 
   public optionsPanel: boolean = true;
   public panelAcessories: boolean = true;
@@ -100,12 +100,12 @@ export class HomePage {
 
 
   constructor(private storage: Storage, public alertController: AlertController, public toastController: ToastController, public loadingController: LoadingController, public formBuilder: FormBuilder, private sanitizer: DomSanitizer, public modalController: ModalController) {
-    this.rooms = [];
+ 
   }
 
   async ngOnInit() {
     await this.storage.create();
-    this.getRooms()
+    //this.getRooms()
     this.roomForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(2)]]
     })
@@ -124,14 +124,15 @@ export class HomePage {
       nameRoom: ['', [Validators.required]]
     })
   }
-  async ionViewWillEnter() {
-    this.getRooms()
+  async ionViewDidLoad() {
+    await this.getRooms()
   }
   // Get Rooms
-  getRooms() {
-    this.storage.get('rooms').then((rooms) => {
+  async getRooms() {
+    await this.storage.get('rooms').then((rooms) => {
       this.rooms = rooms
     })
+    console.log("Rooms?", this.rooms)
   }
   // Toggle Panel options 
   toggleOptions() {
