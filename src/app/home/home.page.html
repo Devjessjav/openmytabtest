@@ -1,20 +1,472 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
+    <ion-title class="ion-text-center title-css">
+      Open my Tab Test
+      <ion-title class="ion-text-center title-css">
+        <span>Design Application</span>
+      </ion-title>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-row *ngIf="rooms.length > 0">
+    <ion-col size="6">
+      <ion-button size="small" fill="outline" class="addButton mt-5 pl-3" (click)="toggleAcessories()">
+        <ion-icon slot="end" name={{iconAcessories}}></ion-icon>
+        {{buttonTextAcessories}}
+      </ion-button>
+    </ion-col>
+    <ion-col size="6" class="ion-text-end">
+      <ion-button size="small" fill="outline" class="addButton mt-5 pl-3" (click)="toggleOptions()">
+        <ion-icon slot="end" name={{iconPanel}}></ion-icon>
+        {{buttonText}}
+      </ion-button>
+    </ion-col>
+  </ion-row>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div *ngIf="optionsPanel">
+    <ion-button size="small" fill="outline" class="addButton mt-5 pl-3" (click)="openRoomForm()">
+      <ion-icon slot="end" name="add"></ion-icon>
+      Add Room
+    </ion-button>
+
+    <!-- Create Room Form -->
+    <div class="p-20" *ngIf="roomContainerForm">
+      <form [formGroup]="roomForm" (ngSubmit)="submitForm()" novalidate>
+        <ion-label>Room Name</ion-label>
+        <ion-input type="text" class="input-css mt-5" formControlName="name">
+        </ion-input>
+        <!-- Error messages -->
+        <span class="error" *ngIf="isSubmitted && errorControl.name.errors?.required">
+          Room Name is required.
+        </span>
+        <span class="error" *ngIf="isSubmitted && errorControl.name.errors?.minlength">
+          Room Name should be min 2 chars long.
+        </span>
+        <!-- Error messages -->
+        <ion-row>
+          <ion-col size="6" class="ion-text-center">
+            <ion-button size="small" color="danger" fill="outline" class="addButton mt-5" (click)="closedRoomForm()">
+              Cancel
+            </ion-button>
+          </ion-col>
+          <ion-col size="6" class="ion-text-center">
+            <ion-button size="small" fill="outline" class="addButton mt-5" type="submit">
+              Save Room
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </div>
+    <!-- Create Room Form -->
+
+    <h5 *ngIf="rooms.length === 0" class="ion-text-center p-10">
+      You don't have rooms created yet, Create one to start
+    </h5>
+    <!-- Rooms Segment -->
+    <ion-segment value="items.nombre" scrollable class="mt-3">
+      <ion-segment-button class="segment-button" *ngFor="let items of rooms; let i = index" (click)="swipeNext(i)">
+        {{items.nombre}}
+      </ion-segment-button>
+    </ion-segment>
+    <!-- Rooms Segment -->
   </div>
+
+  <!-- Accessories Buttons -->
+  <div *ngIf="rooms.length > 0">
+    <div class="mt-5" *ngIf="panelAcessories">
+      <hr>
+      <ion-row class="mt-5">
+        <ion-col size="4" class="ion-text-center" style="padding:0px">
+          <ion-button (click)="openWallContainer()" size="small" fill="outline" class="addButton">Add Wall
+          </ion-button>
+        </ion-col>
+        <ion-col size="4" class="ion-text-center" style="padding:0px">
+          <ion-button size="small" fill="outline" class="addButton" (click)="openTablesContainer()">Add Tables
+          </ion-button>
+        </ion-col>
+        <ion-col size="4" class="ion-text-center" style="padding:0px">
+          <ion-button size="small" fill="outline" class="addButton" (click)="openChairsContainer()">Add Chairs
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="panelAcessories">
+        <ion-col size="12" class="ion-text-center" style="padding:0px">
+          <ion-button size="small" fill="outline" class="addButton" (click)="openTextBoxContainer()">Add Text
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </div>
+  </div>
+  <!-- END Accessories Buttons -->
+  <!-- Rooms Container -->
+  <ion-slides [options]="slideOpts" class="slides-css" #mySlider>
+    <ion-slide *ngFor="let items of rooms; let i = index">
+      <div class="container-room mt-10">
+        <ion-row>
+          <ion-col size="6">
+
+          </ion-col>
+          <ion-col size="6" class="ion-text-end">
+            <ion-button size="small" fill="outline" color="danger" class="addButton mt-5 pr-3"
+              (click)="deleteRoom(items)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <h3>{{items.nombre}} <ion-icon slot="end" class="editIcon" name="create-outline" (click)="editRoom(items)">
+          </ion-icon>
+        </h3>
+        <!-- Edit Room Container -->
+        <div *ngIf="showEditRoom" class="p-20">
+          <form [formGroup]="editRoomForm">
+            <ion-label>New Room Name</ion-label>
+            <ion-input class="input-css mt-5" formControlName="nameRoom" [(ngModel)]="roomNameEdit" type="text">
+            </ion-input>
+            <!-- Error messages -->
+            <span class="error" *ngIf="isSubmitted && errorEditRoom.nameRoom.errors?.required">
+              Room Name is required.
+            </span>
+            <!-- Error messages -->
+          </form>
+          <ion-row class="mt-5">
+            <ion-col size="6">
+              <ion-button size="small" color="danger" fill="outline" class="addButton" (click)="cancelEditRoom()">Cancel
+              </ion-button>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button size="small" fill="outline" class="addButton" (click)="saveEditRoom()">Save Edit</ion-button>
+            </ion-col>
+          </ion-row>
+          <hr>
+        </div>
+        <!-- END Edit Room Container -->
+        <div *ngIf="rooms.length > 0">
+          <!-- Walls items-->
+          <div *ngIf="wallContainer">
+            <hr>
+            <h5 class="ion-text-center">Walls Options</h5>
+            <div class="p-10">
+              <form [formGroup]="wallForm">
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-label>Width</ion-label>
+                    <ion-input type="number" class="input-css mt-5 mb-5" min="20" *ngFor="let item of wallItem"
+                      formControlName="width" [(ngModel)]="item.width">
+                    </ion-input>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-label>Height</ion-label>
+                    <ion-input type="number" class="input-css mt-5" min="20" *ngFor="let item of wallItem"
+                      formControlName="height" [(ngModel)]="item.height">
+                    </ion-input>
+                  </ion-col>
+                </ion-row>
+              </form>
+            </div>
+
+            <div class="ion-text-center">
+              <h5>Preview</h5>
+            </div>
+
+            <div class="container-wall mt-10">
+              <div class="wall-css" *ngFor="let item of wallItem" [style]="getClass(item.width, item.height)">
+              </div>
+            </div>
+
+            <ion-row>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" color="danger" fill="outline" class="addButton mt-5"
+                  (click)="openWallContainer()">
+                  Cancelar
+                </ion-button>
+              </ion-col>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" fill="outline" class="addButton mt-5" (click)="addWall(i)">
+                  Agregar
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+          <!-- End Walls items-->
+
+          <!-- Tables items-->
+          <div *ngIf="tablesContainer">
+            <hr>
+            <h5 class="ion-text-center">Tables Options</h5>
+            <div class="p-10">
+              <form [formGroup]="tablesForm">
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-label>Width</ion-label>
+                    <ion-input type="number" min="20" class="input-css mt-5 mb-5" *ngFor="let item of tablesItemForm"
+                      formControlName="width" [(ngModel)]="item.width">
+                    </ion-input>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-label>Height</ion-label>
+                    <ion-input type="number" min="20" class="input-css mt-5" *ngFor="let item of tablesItemForm"
+                      formControlName="height" [(ngModel)]="item.height">
+                    </ion-input>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <ion-item>
+                      <ion-label>Status</ion-label>
+                      <ion-select placeholder="Select One" (ionChange)="tablesStatus($event)">
+                        <ion-select-option *ngFor="let item of statusItem" [value]="item">{{item.value}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </form>
+            </div>
+
+            <div class="ion-text-center">
+              <h5>Preview</h5>
+            </div>
+
+            <div class="container-wall mt-10">
+              <div class="tables-css" *ngFor="let item of tablesItemForm" [style]="getClass(item.width, item.height)">
+              </div>
+            </div>
+
+            <ion-row>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" color="danger" fill="outline" class="addButton mt-5"
+                  (click)="openTablesContainer()">
+                  Cancelar
+                </ion-button>
+              </ion-col>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" fill="outline" class="addButton mt-5" (click)="addTables(i)"
+                  [disabled]="buttonDisabled">
+                  Agregar
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+          <!-- End Tables items-->
+
+          <!-- Chairs items-->
+          <div *ngIf="chairsContainer">
+            <hr>
+            <h5 class="ion-text-center">Chairs Options</h5>
+            <div class="p-10">
+              <ion-row>
+                <ion-col size="12">
+                  <ion-item>
+                    <ion-label>Status</ion-label>
+                    <ion-select placeholder="Select One" (ionChange)="tablesStatus($event)">
+                      <ion-select-option *ngFor="let item of statusItem" [value]="item">{{item.value}}
+                      </ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </div>
+            <ion-row>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" color="danger" fill="outline" class="addButton mt-5"
+                  (click)="openChairsContainer()">
+                  Cancelar
+                </ion-button>
+              </ion-col>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" fill="outline" class="addButton mt-5" (click)="addChairs(i)"
+                  [disabled]="buttonDisabled">
+                  Agregar
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+          <!-- End Chairs items-->
+
+          <!-- Text Input item-->
+          <div *ngIf="textBoxContainer">
+            <hr>
+            <h5 class="ion-text-center">Text Box</h5>
+            <div class="p-10">
+              <form [formGroup]="textBoxForm" novalidate>
+                <ion-row>
+                  <ion-col size="12">
+                    <ion-label>Write the text you want</ion-label>
+                    <ion-input type="text" class="input-css mt-5" formControlName="name">
+                    </ion-input>
+                    <!-- Error messages -->
+                    <span class="error" *ngIf="isSubmitted && errorTextBoxControl.name.errors?.required">
+                      Text is required.
+                    </span>
+                    <!-- Error messages -->
+                  </ion-col>
+                </ion-row>
+              </form>
+            </div>
+            <ion-row>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" color="danger" fill="outline" class="addButton mt-5"
+                  (click)="openTextBoxContainer()">
+                  Cancelar
+                </ion-button>
+              </ion-col>
+              <ion-col size="6" class="ion-text-center">
+                <ion-button size="small" fill="outline" class="addButton mt-5" (click)="addTextBox(i)">
+                  Agregar
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+          <!-- Text Input items-->
+        </div>
+        <!-- item Options "Walls" -->
+        <div *ngIf="itemOptions">
+          <ion-row>
+            <ion-col size="6">
+              <label class="label-text">Block Item</label>
+              <ion-item>
+                <div class="d-flex align-items-center">
+                  <span>No</span>
+                  <ion-toggle slot="end" color="primary" checked="item.disabled" [(ngModel)]='remoteToggle'
+                    (ionChange)="toggleStatus()"></ion-toggle>
+                  <span class="ml-10">Yes</span>
+                </div>
+              </ion-item>
+            </ion-col>
+            <ion-col size="6" class="flex-style">
+              <ion-button size="small" fill="outline" class="addButton mt-5" (click)="deleteItem()">
+                Delete
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </div>
+        <!-- item Options "Tables" -->
+        <div *ngIf="itemOptionsTables">
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label>Status</ion-label>
+                <ion-select placeholder="Select One" (ionChange)="editTablesStatus($event)">
+                  <ion-select-option *ngFor="let item of statusItem" [value]="item">{{item.value}}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <label class="label-text">Block Item</label>
+              <ion-item>
+                <div class="d-flex align-items-center">
+                  <span>No</span>
+                  <ion-toggle slot="end" color="primary" checked="item.disabled" [(ngModel)]='remoteToggle'
+                    (ionChange)="toggleStatus()"></ion-toggle>
+                  <span class="ml-10">Yes</span>
+                </div>
+              </ion-item>
+            </ion-col>
+            <ion-col size="6" class="flex-style">
+              <ion-button size="small" fill="outline" class="addButton mt-5" (click)="deleteItemTables()">
+                Delete
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </div>
+        <!-- item Options "Chairs" -->
+        <div *ngIf="itemOptionsChairs">
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label>Status</ion-label>
+                <ion-select placeholder="Select One" (ionChange)="editTablesStatus($event)">
+                  <ion-select-option *ngFor="let item of statusItem" [value]="item">{{item.value}}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <label class="label-text">Block Item</label>
+              <ion-item>
+                <div class="d-flex align-items-center">
+                  <span>No</span>
+                  <ion-toggle slot="end" color="primary" checked="item.disabled" [(ngModel)]='remoteToggle'
+                    (ionChange)="toggleStatus()"></ion-toggle>
+                  <span class="ml-10">Yes</span>
+                </div>
+              </ion-item>
+            </ion-col>
+            <ion-col size="6" class="flex-style">
+              <ion-button size="small" fill="outline" class="addButton mt-5" (click)="deleteItemChairs()">
+                Delete
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </div>
+        <!-- item Options "TextBox" -->
+        <div *ngIf="itemOptionsTextBox">
+          <ion-row>
+            <ion-col size="6">
+              <label class="label-text">Block Item</label>
+              <ion-item>
+                <div class="d-flex align-items-center">
+                  <span>No</span>
+                  <ion-toggle slot="end" color="primary" checked="item.disabled" [(ngModel)]='remoteToggle'
+                    (ionChange)="toggleStatus()"></ion-toggle>
+                  <span class="ml-10">Yes</span>
+                </div>
+              </ion-item>
+            </ion-col>
+            <ion-col size="6" class="flex-style">
+              <ion-button size="small" fill="outline" class="addButton mt-5" (click)="deleteItemTextBox()">
+                Delete
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </div>
+        <!-- Container Elements-->
+        <div class="p-5 container-Drag">
+          <div class="drag-box">
+            <!-- Walls elements-->
+            <div class="wall-css" *ngFor="let item of items.elementos.walls; let i = index"
+              (click)="itemOptionsOpen(item, i)" [style]="getClass(item.width, item.height)" cdkDrag
+              [cdkDragDisabled]="item.disabled">
+            </div>
+            <!-- END Walls elements-->
+            <!-- Tables elements-->
+            <div class="tables-css" *ngFor="let item of items.elementos.tables; let i = index" cdkDrag
+              [cdkDragDisabled]="item.disabled" (click)="itemOptionsTablesOpen(item, i)"
+              [style]="getClass(item.width, item.height)">
+              <ion-icon name={{item.status.icon}}></ion-icon>
+            </div>
+            <!-- END Tables elements-->
+            <!-- Chairs elements-->
+            <div class="chairs-css" *ngFor="let item of items.elementos.chairs; let i = index" cdkDrag
+              [cdkDragDisabled]="item.disabled" (click)="itemOptionsChairsOpen(item, i)"
+              [style]="getClass(item.width, item.height)">
+              <ion-icon name={{item.status.icon}}></ion-icon>
+            </div>
+            <!-- END Chairs elements-->
+            <!-- Text Box elements-->
+            <div class="textBox-css" *ngFor="let item of items.elementos.textbox; let i = index" cdkDrag
+              [cdkDragDisabled]="item.disabled" (click)="itemOptionsTextBoxOpen(item, i)">
+              <span class="textBox-span">{{item.value}}</span>
+            </div>
+            <!-- END Text Box elements-->
+          </div>
+        </div>
+        <!-- END Container Elements-->
+      </div>
+    </ion-slide>
+  </ion-slides>
+  <!-- Rooms Container -->
+
+
+
+
+
+
 </ion-content>

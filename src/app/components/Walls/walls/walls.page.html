@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Wall Properties
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="mt-5 p-10">
+    <ion-label>Ancho</ion-label>
+    <ion-input type="number" class="input-css mt-5 mb-5" *ngFor="let item of walls" [(ngModel)]="item.width">
+    </ion-input>
+    <ion-label>Largo</ion-label>
+    <ion-input type="number" class="input-css mt-5" *ngFor="let item of walls" [(ngModel)]="item.height"></ion-input>
+  </div>
+
+  <div class="ion-text-center">
+    <h5>Preview</h5>
+  </div>
+
+  <div class="container-wall mt-10">
+    <div class="wall-css" *ngFor="let item of walls" [style]="getClass(item.width, item.height)">
+    </div>
+  </div>
+</ion-content>
