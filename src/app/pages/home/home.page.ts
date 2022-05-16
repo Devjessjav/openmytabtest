@@ -3,7 +3,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 // Components
 import { IonSlides, ModalController, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { Storage } from '@ionic/storage-angular';
+import { Storage } from '@ionic/storage';
+import { TouchSequence } from 'selenium-webdriver';
 
 
 @Component({
@@ -62,7 +63,7 @@ export class HomePage {
   roomItem: any
   roomNameEdit: string
   // Array Rooms
-  rooms = [];
+  rooms: any[] = [];
   // Variables Options 
   public optionsPanel: boolean = true;
   public panelAcessories: boolean = true;
@@ -99,12 +100,11 @@ export class HomePage {
   itemStatus: any
 
 
-  constructor(private storage: Storage, public alertController: AlertController, public toastController: ToastController, public loadingController: LoadingController, public formBuilder: FormBuilder, private sanitizer: DomSanitizer, public modalController: ModalController) {
+  constructor(private storage: Storage,public alertController: AlertController, public toastController: ToastController, public loadingController: LoadingController, public formBuilder: FormBuilder, private sanitizer: DomSanitizer, public modalController: ModalController) {
  
   }
 
   async ngOnInit() {
-    await this.storage.create();
     //this.getRooms()
     this.roomForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(2)]]
@@ -124,14 +124,13 @@ export class HomePage {
       nameRoom: ['', [Validators.required]]
     })
   }
-  ionViewDidEnter() {
-    this.getRooms()
+  async ionViewDidEnter() {
+   await this.getRooms()
   }
   // Get Rooms
   async getRooms() {
-    await this.storage.get('rooms').then((rooms) => {
-      this.rooms = rooms
-    })
+    this.rooms = await this.storage.get('rooms')
+  
     console.log("Rooms?", this.rooms)
   }
   // Toggle Panel options 
@@ -177,7 +176,7 @@ export class HomePage {
     return this.editRoomForm.controls
   }
   // End Handle Errors Functions
-  submitForm() {
+   async submitForm() {
     this.isSubmitted = true;
     if (!this.roomForm.valid) {
       return false;
@@ -191,7 +190,7 @@ export class HomePage {
           this.loading = overlay;
           this.loading.present();
         });
-      setTimeout(() => {
+      setTimeout(async () => {
         this.loading.dismiss();
         let roomItem = {
           nombre: this.roomForm.value.name,
@@ -203,7 +202,7 @@ export class HomePage {
           }
         }
         this.rooms.push(roomItem)
-        this.storage.set('rooms', this.rooms)
+        await this.storage.set('rooms', this.rooms)
         this.roomContainerForm = false
         this.roomForm.reset()
         this.presentToast()
