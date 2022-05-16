@@ -401,6 +401,9 @@ export class HomePage {
     this.selectedItem = item
     this.remoteToggle = this.selectedItem.disabled
     this.itemOptions = !this.itemOptions;
+    this.itemOptionsTextBox = false;
+    this.itemOptionsTables = false;
+    this.itemOptionsChairs  = false
   }
 
   itemOptionsTablesOpen(item, i) {
@@ -408,6 +411,9 @@ export class HomePage {
     this.selectedItem = item
     this.remoteToggle = this.selectedItem.disabled
     this.itemOptionsTables = !this.itemOptionsTables;
+    this.itemOptions = false;
+    this.itemOptionsChairs = false;
+    this.itemOptionsTextBox  = false
   }
 
   itemOptionsChairsOpen(item, i) {
@@ -415,12 +421,18 @@ export class HomePage {
     this.selectedItem = item
     this.remoteToggle = this.selectedItem.disabled
     this.itemOptionsChairs = !this.itemOptionsChairs;
+    this.itemOptions = false;
+    this.itemOptionsTables = false;
+    this.itemOptionsTextBox  = false
   }
   itemOptionsTextBoxOpen(item, i) {
     this.indexItem = i
     this.selectedItem = item
     this.remoteToggle = this.selectedItem.disabled
     this.itemOptionsTextBox = !this.itemOptionsTextBox;
+    this.itemOptions = false;
+    this.itemOptionsTables = false;
+    this.itemOptionsChairs  = false
   }
 
   deleteItem() {
